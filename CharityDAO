@@ -1,0 +1,122 @@
+pragma solidity 0.8.4;
+
+contract CharityDAO {
+    address public owner;
+
+    // Struct for storing project information
+    struct Project {
+        string name;
+        string description;
+        string photo;
+        string location;
+        string contactDetails;
+        uint budget;
+        uint dataStorage;
+        string status;
+    }
+    mapping(address => Project) public projects;
+
+    // Event for logging project creation
+    event ProjectCreated(address indexed creator, string name, uint budget);
+
+    constructor() public {
+        owner = msg.sender;
+    }
+
+    // Function to create a new project with "Draft" status
+    function createProject(string memory _name, string memory _description, string memory _photo, string memory _location, string memory _contactDetails, uint _budget, uint _dataStorage) public {
+        require(msg.sender == owner, "Only the owner can create a new project.");
+        projects[msg.sender] = Project(_name, _description, _photo, _location, _contactDetails, _budget, _dataStorage, "Draft");
+        emit ProjectCreated(msg.sender, _name, _budget);
+    }
+}
+// Function to update the status of a project
+    function updateProjectStatus(address _projectCreator, string memory _newStatus) public {
+        require(msg.sender == owner || msg.sender == _projectCreator, "Only the owner or the project creator can update the status of a project.");
+        require(projects[_projectCreator].status != "Finished", "Cannot update the status of a finished project.");
+        projects[_projectCreator].status = _newStatus;
+    }
+
+    // Function to stake NFT for a project
+    function stakeNFT(address _projectCreator, uint _nftId, uint _stakeDuration) public {
+        require(msg.sender != _projectCreator, "Cannot stake NFT for own project.");
+        require(projects[_projectCreator].status == "Upcoming", "Cannot stake NFT for a project that is not in the Upcoming status.");
+        require(_stakeDuration <= 30 days, "Stake duration must be 30 days or less.");
+        // Logic to check if NFT is valid and belongs to msg.sender
+        // Logic to stake NFT for specified duration
+    }
+
+    // Function to vote for a project
+    function voteForProject(address _projectCreator, uint _nftId) public {
+        require(msg.sender != _projectCreator, "Cannot vote for own project.");
+        require(projects[_projectCreator].status == "Upcoming", "Cannot vote for a project that is not in the Upcoming status.");
+        // Logic to check if NFT is valid and belongs to msg.sender
+        // Logic to add vote for project
+    }
+
+    // Function to fund a project
+    function fundProject(address _projectCreator) public payable {
+        require(msg.sender != _projectCreator, "Cannot fund own project.");
+        require(projects[_projectCreator].status == "Funding", "Cannot fund a project that is not in the Funding status.");
+        require(msg.value >= projects[_projectCreator].budget, "Funding must be equal to or greater than project budget.");
+        // Logic to transfer funds to project executor
+    }
+
+    // Function to validate project stages
+    function validateProjectStage(address _projectCreator, uint _stageNumber) public {
+        require(msg.sender != _projectCreator, "Cannot validate own project.");
+        require(projects[_projectCreat
+        
+            // Enum for project statuses
+    enum ProjectStatus { Draft, Upcoming, Financing, Finished }
+
+    // Struct for storing NFT information
+    struct NFT {
+        address owner;
+        uint primaryPrice;
+        ProjectStatus projectStatus;
+        uint projectIndex;
+    }
+    mapping(uint => NFT) public nfts;
+
+    // Event for logging NFT minting
+    event NFTMinted(address indexed owner, uint primaryPrice, ProjectStatus projectStatus, uint projectIndex);
+
+    // Function to mint a new NFT for a project with "Upcoming" status
+    function mintNFT(address _owner, uint _primaryPrice, uint _projectIndex) public {
+        require(msg.sender == owner, "Only the owner can mint a new NFT.");
+        require(projects[_owner].status == "Upcoming", "Only projects with 'Upcoming' status can have NFTs minted for them.");
+        nfts[_projectIndex] = NFT(_owner, _primaryPrice, ProjectStatus.Upcoming, _projectIndex);
+        emit NFTMinted(_owner, _primaryPrice, ProjectStatus.Upcoming, _projectIndex);
+    }
+
+    // Function to change the status of a project to "Financing"
+    function financeProject(uint _projectIndex) public {
+        require(nfts[_projectIndex].owner == msg.sender, "Only the owner of the NFT can finance a project.");
+        require(nfts[_projectIndex].projectStatus == ProjectStatus.Upcoming, "Only projects with 'Upcoming' status can be financed.");
+        require(nfts[_projectIndex].primaryPrice >= projects[nfts[_projectIndex].owner].budget, "The primary price of the NFT must be greater than or equal to the project budget.");
+        projects[nfts[_projectIndex].owner].status = "Financing";
+        nfts[_projectIndex].projectStatus = ProjectStatus.Financing;
+    }
+
+    // Function to validate a project stage
+    function validateStage(uint _projectIndex) public {
+        require(nfts[_projectIndex].owner == msg.sender, "Only the owner of the NFT can validate a project stage.");
+        require(nfts[_projectIndex].projectStatus == ProjectStatus.Financing, "Only projects with 'Financing' status can have stages validated.");
+        // Check if there are remaining stages to be validated
+        //
+and update the project status and NFT information accordingly
+if (projects[nfts[_projectIndex].owner].dataStorage > 0) {
+projects[nfts[_projectIndex].owner].dataStorage--;
+// Update the project status if all stages have been validated
+if (projects[nfts[_projectIndex].owner].dataStorage == 0) {
+projects[nfts[_projectIndex].owner].status = "Finished";
+nfts[_projectIndex].projectStatus = ProjectStatus.Finished;
+// Mint new NFTs for the finished project
+for (uint i = 0; i < projects[nfts[_projectIndex].owner].dataStorage; i++) {
+nfts[i] = NFT(nfts[_projectIndex].owner, nfts[_projectIndex].primaryPrice, ProjectStatus.Finished, i);
+}
+}
+}
+}
+}
